@@ -102,10 +102,19 @@ body,
 }
 
 /*
- * iOS 26 no app instalado (tela de início): a página recebe menos altura que a tela e o sistema pinta a
- * sobra embaixo, fora do alcance da página, com a cor de fundo do documento (WebKit 301994). Com o fundo
- * do html na cor da barra inferior, essa faixa vira continuação da barra; o corpo segue com o fundo do app.
+ * iOS 26 no app instalado (black-translucent + viewport-fit=cover): enquanto a página é mais baixa que a
+ * tela, o iPhone entrega uma área menor que a tela pela altura da barra de status e para de desenhar o
+ * que é fixo nessa borda, e sobrava uma faixa embaixo da barra inferior (WebKit 301108). Com a página pelo
+ * menos da altura da tela, ele entrega a tela toda. O min() limita o crescimento à altura da tela, para a
+ * página não rolar onde a barra de status é opaca (WebKit 316008). É a mesma correção do frappe-ui.
  */
+@media (display-mode: standalone) {
+  html {
+    min-height: min(100lvh, calc(100% + env(safe-area-inset-top)));
+  }
+}
+
+/* o que o iPhone pinta fora da página usa a cor sólida do html: a da barra inferior */
 html {
   background-color: var(--surface);
 }

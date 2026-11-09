@@ -54,7 +54,7 @@ function useTheme() {
     const apply = () => {
       const dark = theme === 'dark' || (theme === 'system' && mq.matches)
       document.documentElement.dataset.theme = dark ? 'dark' : 'light'
-      // a cor da barra inferior: o iPhone pode usar a cor do tema para pintar a faixa de baixo (ver viewport.ts)
+      // a cor da barra inferior, a mesma do fundo do html (ver index.css)
       document.querySelectorAll('meta[name="theme-color"]').forEach((m) => m.setAttribute('content', dark ? '#17191A' : '#FFFFFF'))
     }
     apply()
@@ -198,9 +198,6 @@ function MainApp() {
       {/* Barra inferior com botão central de criação */}
       <nav className={clsx('pointer-events-none fixed inset-x-0 bottom-0 z-30 flex justify-center lg:hidden', tab === 'assistant' && 'hidden')}>
         <div className="glass pointer-events-auto relative grid w-full max-w-xl grid-cols-5 items-end rounded-t-[28px] px-2 pb-[max(var(--sab),10px)] pt-2 shadow-[0_-1px_0_var(--separator),0_-12px_32px_-18px_rgba(15,21,18,0.18)]">
-          {/* a barra continua para baixo da tela: no iOS 26 (app instalado) a página termina antes do fim
-              do aparelho, e onde der para desenhar a faixa que sobra fica com a cor da barra (ver viewport.ts) */}
-          <span aria-hidden className="pointer-events-none absolute inset-x-0 top-full h-[120px] bg-[var(--bar)]" />
           {[...barTabs.slice(0, 2), null, ...barTabs.slice(2)].map((t) => {
             if (!t)
               return (

@@ -3,12 +3,9 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App'
 import { registerSW } from './lib/pwa'
-import { fixStandaloneGap } from './lib/viewport'
 
 // app instalável e notificações push
 registerSW()
-// iPhone com iOS 26, app instalado: faixa embaixo da barra inferior
-fixStandaloneGap()
 
 // aberto pela moldura de iPhone (iphone.html): reserva espaço da Dynamic Island e da barra inferior
 const frame = new URLSearchParams(location.search).get('frame')
