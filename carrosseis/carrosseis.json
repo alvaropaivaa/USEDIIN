@@ -1,0 +1,21 @@
+{
+  "updatedAt": "2026-11-09",
+  "carousels": [
+    {
+      "id": "pra-onde-foi",
+      "title": "O salário caiu dia 5. No dia 20, já tinha sumido.",
+      "description": "Do problema (o gasto pequeno que ninguém anota) ao Dinn: tudo num lugar, limite do dia, lançar falando e metas.",
+      "createdAt": "2026-11-09",
+      "slideCount": 7,
+      "status": "Em revisão · não publicado",
+      "cover": "pra-onde-foi/v1/slide-01.png",
+      "viewer": "pra-onde-foi/v1/ver-carrossel.html",
+      "versions": [
+        {"label": "v1 · prints reais + mascote", "href": "pra-onde-foi/v1/ver-carrossel.html"}
+      ],
+      "caption": "O salário cai, as contas chegam e no fim do mês fica a pergunta: pra onde foi?\n\nNa maioria das vezes não é falta de esforço. É o gasto pequeno que ninguém anota: o café, o uber, o ifood, a farmácia.\n\nNo Dinn você vê tudo num lugar só: o saldo das contas, quanto ainda dá pra gastar no mês, suas metas e cada gasto lançado do jeito que você fala.\n\nSalva este post pra lembrar no dia 20. E teste o Dinn: link na bio.",
+      "hashtags": ["financaspessoais", "controlefinanceiro", "organizacaofinanceira", "dinheiro"],
+      "platforms": ["Instagram"]
+    }
+  ]
+}

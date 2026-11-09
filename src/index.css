@@ -1,0 +1,331 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+/* Cores de sistema iOS (Human Interface Guidelines) */
+:root {
+  --bg: #f6f7f6;
+  --surface: #ffffff;
+  --surface-2: #f3f5f4;
+  --fill: rgba(17, 24, 39, 0.06);
+  --fill-2: rgba(17, 24, 39, 0.14);
+  --label: #0f1512;
+  --label-2: #66706b;
+  --label-3: #a3aab3;
+  --separator: rgba(17, 24, 39, 0.08);
+  --bar: rgba(255, 255, 255, 0.86);
+  --tint: #15803d;
+  --green: #166534;
+  --red: #dc2626;
+  --blue: #2563eb;
+  --orange: #f59e0b;
+  --indigo: #101418;
+  --chart-a: #0e7a3a;
+  --chart-b: #5bc98a;
+  --chart-grid: rgba(17, 24, 39, 0.06);
+  --shadow: 0 0 0 1px rgba(15, 21, 18, 0.05), 0 1px 2px rgba(15, 21, 18, 0.04), 0 10px 28px -14px rgba(15, 21, 18, 0.14);
+  color-scheme: light;
+}
+
+[data-theme='dark'] {
+  --bg: #0b0d0c;
+  --surface: #17191a;
+  --surface-2: #202325;
+  --fill: rgba(255, 255, 255, 0.08);
+  --fill-2: rgba(255, 255, 255, 0.16);
+  --label: #f5f7f6;
+  --label-2: #9aa3ab;
+  --label-3: #5f676e;
+  --separator: rgba(255, 255, 255, 0.08);
+  --bar: rgba(23, 25, 26, 0.84);
+  --tint: #22a356;
+  --green: #4ade80;
+  --red: #f87171;
+  --blue: #60a5fa;
+  --orange: #fbbf24;
+  --indigo: #f5f7f6;
+  --chart-a: #1f7a45;
+  --chart-b: #34ad66;
+  --chart-grid: rgba(255, 255, 255, 0.06);
+  --shadow: 0 0 0 1px rgba(255, 255, 255, 0.07);
+  color-scheme: dark;
+}
+
+@theme {
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+  --font-rounded: 'Inter', -apple-system, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --shadow-card: var(--shadow);
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-fill: var(--fill);
+  --color-fill-2: var(--fill-2);
+  --color-label: var(--label);
+  --color-label-2: var(--label-2);
+  --color-label-3: var(--label-3);
+  --color-separator: var(--separator);
+  --color-tint: var(--tint);
+  --color-green: var(--green);
+  --color-red: var(--red);
+  --color-blue: var(--blue);
+  --color-orange: var(--orange);
+  --color-indigo: var(--indigo);
+}
+
+:root {
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+}
+/* pré-visualização dentro da moldura de iPhone (iphone.html) */
+html[data-frame='iphone'] {
+  --sat: 54px;
+  --sab: 30px;
+}
+html[data-frame] *,
+html[data-frame] {
+  scrollbar-width: none;
+}
+html[data-frame] *::-webkit-scrollbar,
+html[data-frame]::-webkit-scrollbar {
+  display: none;
+}
+html[data-frame='se'] {
+  --sat: 20px;
+  --sab: 0px;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--label);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+  letter-spacing: -0.011em;
+  font-feature-settings: 'cv11', 'ss01';
+  transition: background-color 0.3s ease;
+}
+
+* {
+  -webkit-touch-callout: none;
+}
+
+input {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+button {
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+/* Superfície de marca: verde-escuro sólido, quase sem variação */
+.grad-green {
+  background-color: #0f3b2c;
+  background-image: linear-gradient(180deg, #11402f 0%, #0c3326 100%);
+}
+
+/* Ação primária: verde sólido, sem brilho */
+.grad-btn {
+  background-color: var(--tint);
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+.glass {
+  background: var(--bar);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+}
+
+.hairline-b {
+  box-shadow: inset 0 -0.5px 0 var(--separator);
+}
+.hairline-t {
+  box-shadow: inset 0 0.5px 0 var(--separator);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+.pt-safe {
+  padding-top: var(--sat);
+}
+.pb-safe {
+  padding-bottom: var(--sab);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* Login: painel verde-escuro da marca (computador, à direita) e topo verde (celular) */
+.brand-panel {
+  background-color: #0b2e1c;
+  /* verde da marca quase uniforme: só uma luz bem leve no meio e um pouco mais escuro embaixo */
+  background-image: radial-gradient(640px 460px at 50% 42%, rgba(74, 222, 128, 0.09), transparent 70%), linear-gradient(180deg, #0f3b2c 0%, #0d3526 60%, #0a2c1f 100%);
+}
+.brand-panel-top {
+  background-color: #0d3526;
+  background-image: radial-gradient(340px 220px at 50% 70%, rgba(74, 222, 128, 0.1), transparent 70%), linear-gradient(180deg, #0a2c1f 0%, #0d3526 45%, #0f3b2c 100%);
+}
+/* arco de ícones: balança devagar em volta do centro; cada quadradinho é de vidro */
+.arc-sway {
+  animation: arc-sway 22s ease-in-out infinite alternate;
+}
+@keyframes arc-sway {
+  from {
+    rotate: -7deg;
+  }
+  to {
+    rotate: 7deg;
+  }
+}
+/* anel de bancos do login: uma volta inteira a cada 2 minutos e meio */
+.ring-spin {
+  animation: ring-spin 150s linear infinite;
+}
+@keyframes ring-spin {
+  to {
+    rotate: 360deg;
+  }
+}
+/* quadradinhos do login (bancos e ícones): brancos e nítidos, com sombra curta e firme */
+.bank-tile,
+.float-tile {
+  background: #ffffff;
+  box-shadow:
+    inset 0 0 0 1px rgba(15, 21, 18, 0.06),
+    0 2px 4px rgba(0, 0, 0, 0.12),
+    0 16px 28px -14px rgba(0, 0, 0, 0.55);
+}
+.float-tile {
+  color: #0f3b2c;
+}
+/* trilha por onde os bancos passam */
+.orbit {
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 50%;
+}
+
+/* utilitário (aceita lg:, hover:…) */
+/* fonte da tela de entrada */
+@utility font-login {
+  font-family: 'DM Sans', var(--font-sans);
+}
+
+@utility font-display {
+  font-family: 'Plus Jakarta Sans', var(--font-sans);
+}
+
+/* ─── Painel do administrador: minimalista (estilo Apple), verde do Dinn como personalidade ─── */
+html.adm {
+  --color-bg: #f5f5f7;
+  --color-surface: #ffffff;
+  --color-surface-2: #fafafa;
+  --color-fill: rgba(0, 0, 0, 0.045);
+  --color-fill-2: rgba(0, 0, 0, 0.09);
+  --color-label: #1d1d1f;
+  --color-label-2: #6e6e73;
+  --color-label-3: #a1a1a6;
+  --color-separator: rgba(0, 0, 0, 0.06);
+  --color-tint: #15803d;
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.03), 0 4px 24px -12px rgba(0, 0, 0, 0.08);
+  --adm-pop: 0 0 0 0.5px rgba(0, 0, 0, 0.06), 0 24px 60px -12px rgba(0, 0, 0, 0.22);
+  --adm-brand: #0f3b2c;
+  --chart-grid: rgba(0, 0, 0, 0.05);
+  --chart-a: #15803d;
+  background: #f5f5f7;
+}
+html.adm[data-theme='dark'] {
+  --color-bg: #000000;
+  --color-surface: #1c1c1e;
+  --color-surface-2: #232325;
+  --color-fill: rgba(255, 255, 255, 0.07);
+  --color-fill-2: rgba(255, 255, 255, 0.14);
+  --color-label: #f5f5f7;
+  --color-label-2: #98989d;
+  --color-label-3: #636366;
+  --color-separator: rgba(255, 255, 255, 0.08);
+  --color-tint: #30d158;
+  --shadow-card: none;
+  --adm-pop: 0 0 0 0.5px rgba(255, 255, 255, 0.1), 0 24px 60px -12px rgba(0, 0, 0, 0.7);
+  --chart-grid: rgba(255, 255, 255, 0.06);
+  --chart-a: #30d158;
+  background: #000;
+}
+html.adm body {
+  background: var(--color-bg);
+  letter-spacing: -0.012em;
+}
+/* cartão verde da marca (mesmo do app) */
+.adm-brand {
+  background-color: #0f3b2c;
+  background-image: radial-gradient(120% 140% at 100% 0%, rgba(74, 222, 128, 0.22), transparent 55%), linear-gradient(180deg, #11402f, #0b3124);
+}
+
+/* Computador: faixa verde-escura do topo e menu lateral escuro. Onde os dois se encontram a cor
+   é a mesma, sem emenda: o menu só escurece abaixo da faixa. */
+.band {
+  background-color: #0f3b2c;
+}
+
+/* Canto de dentro, onde a faixa encontra o menu: a curva fica no conteúdo, que parece encaixado no verde */
+.band-corner {
+  background-color: #0f3b2c;
+  -webkit-mask: radial-gradient(circle at 100% 100%, transparent 31.5px, #000 32px);
+  mask: radial-gradient(circle at 100% 100%, transparent 31.5px, #000 32px);
+}
+
+.side-dark {
+  background-color: #0f3b2c;
+  background-image: linear-gradient(180deg, #0f3b2c 0, #0f3b2c 280px, #0a2b20 100%);
+}
+
+/* Calculadora de juros: cursor piscando no visor */
+.calc-caret {
+  animation: caret 1s steps(1) infinite;
+}
+@keyframes caret {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* mãozinha da saudação acenando */
+@keyframes wave {
+  0%,
+  100% {
+    rotate: 0deg;
+  }
+  20% {
+    rotate: 16deg;
+  }
+  40% {
+    rotate: -8deg;
+  }
+  60% {
+    rotate: 14deg;
+  }
+  80% {
+    rotate: -4deg;
+  }
+}

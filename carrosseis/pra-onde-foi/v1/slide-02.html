@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="base.css">
+<style>
+.semana{position:absolute;left:var(--m);right:var(--m);top:636px}
+.rotulo{font-size:24px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--fraco)}
+.chips{margin-top:22px;display:flex;flex-wrap:wrap;gap:16px}
+.chips span{display:inline-block;padding:20px 30px;border-radius:999px;background:#fff;font-size:31px;font-weight:500;
+  box-shadow:0 0 0 1px rgba(15,21,18,.05),0 1px 2px rgba(15,21,18,.05),0 16px 30px -18px rgba(15,59,44,.40)}
+.total{position:absolute;left:var(--m);right:var(--m);bottom:96px;border-radius:36px;padding:42px 52px;color:#fff;
+  background:linear-gradient(180deg,#11402f 0%,#0c3326 100%);box-shadow:0 40px 70px -34px rgba(15,59,44,.7)}
+.total small{display:block;font-size:28px;color:rgba(255,255,255,.7)}
+.total strong{display:block;margin-top:6px;font-size:100px;line-height:1;font-weight:700;letter-spacing:-0.035em;font-variant-numeric:tabular-nums}
+.total span{display:block;margin-top:14px;font-size:30px;color:rgba(255,255,255,.74)}
+</style>
+</head>
+<body>
+  <div class="marca"><svg viewBox="0 0 25 25"><defs><linearGradient id="g" x1="0" y1="1" x2="0" y2="0"><stop stop-color="#16a34a"/><stop offset="1" stop-color="#86efac"/></linearGradient></defs><rect x="0" y="14" width="7" height="11" rx="2" fill="url(#g)"/><rect x="9" y="8" width="7" height="17" rx="2" fill="url(#g)"/><rect x="18" y="0" width="7" height="25" rx="2" fill="url(#g)"/></svg>Dinn</div>
+
+  <div class="topo">
+    <h1 class="titulo">Não é falta de esforço<i class="p">.</i> É falta de <span class="risco">enxergar<svg viewBox="0 0 240 12" preserveAspectRatio="none"><path d="M3 8 C 40 3, 78 11, 118 6 S 196 3, 237 7"/></svg></span><i class="p">.</i></h1>
+    <p class="apoio">Caderno, planilha, de cabeça: todo mundo começa de algum jeito. O que escapa é o gasto pequeno de todo dia.</p>
+  </div>
+
+  <div class="semana">
+    <p class="rotulo">Uma semana qualquer · exemplo</p>
+    <div class="chips">
+      <span>café 8,50</span><span>uber 23,50</span><span>padaria 14,00</span>
+      <span>ifood 45,90</span><span>farmácia 62,00</span><span>streaming 39,90</span>
+    </div>
+  </div>
+
+  <div class="total">
+    <small>Somando o mês</small>
+    <strong>R$ 775,20</strong>
+    <span>em gastos que ninguém anotou.</span>
+  </div>
+</body>
+</html>

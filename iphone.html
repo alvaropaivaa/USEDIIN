@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dinn · iPhone</title>
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <style>
+      :root {
+        --bg: #e9ecea;
+        --ink: #0f1512;
+        --muted: #66706b;
+        --chip: #ffffff;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #111312;
+          --ink: #f3f5f4;
+          --muted: #8b938e;
+          --chip: #1d2120;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: radial-gradient(120% 80% at 50% 0%, color-mix(in srgb, var(--bg) 70%, #fff) 0%, var(--bg) 60%);
+        font-family: -apple-system, 'Inter', 'Segoe UI', system-ui, sans-serif;
+        color: var(--ink);
+        overflow: hidden;
+      }
+      .stage {
+        position: absolute;
+        inset: 0 0 30px 0;
+        display: grid;
+        place-items: center;
+      }
+      /* moldura: aço escovado + borda preta, como o iPhone 15 Pro */
+      .phone {
+        --w: 393px;
+        --h: 852px;
+        --r: 58px;
+        position: relative;
+        width: calc(var(--w) + 24px);
+        height: calc(var(--h) + 24px);
+        padding: 12px;
+        border-radius: calc(var(--r) + 12px);
+        background: linear-gradient(145deg, #5b5e62, #2b2d30 40%, #4a4d51 70%, #1f2023);
+        box-shadow: inset 0 0 0 2px #77797d, inset 0 0 0 9px #0b0b0c, 0 40px 80px -30px rgba(0, 0, 0, 0.45), 0 12px 24px -12px rgba(0, 0, 0, 0.35);
+        transform-origin: center;
+      }
+      .btn {
+        position: absolute;
+        width: 4px;
+        border-radius: 2px;
+        background: linear-gradient(90deg, #3a3c3f, #6b6e72);
+      }
+      .btn.action { left: -3px; top: 150px; height: 32px; }
+      .btn.vol-up { left: -3px; top: 210px; height: 58px; }
+      .btn.vol-down { left: -3px; top: 280px; height: 58px; }
+      .btn.power { right: -3px; top: 240px; height: 92px; }
+      .screen {
+        position: relative;
+        width: var(--w);
+        height: var(--h);
+        border-radius: var(--r);
+        overflow: hidden;
+        background: #000;
+      }
+      iframe {
+        border: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+        background: #f6f7f6;
+      }
+      /* barra de status: a cor é escolhida lendo o fundo real do app logo abaixo dela */
+      .status {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 54px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 6px 34px 0 46px;
+        color: #fff;
+        transition: color 0.2s;
+        pointer-events: none;
+        font: 600 16px/1 -apple-system, 'Inter', system-ui, sans-serif;
+        letter-spacing: -0.01em;
+      }
+      .status .right {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .island {
+        position: absolute;
+        top: 11px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 124px;
+        height: 36px;
+        border-radius: 20px;
+        background: #000;
+        pointer-events: none;
+      }
+      .home-indicator {
+        position: absolute;
+        bottom: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 138px;
+        height: 5px;
+        border-radius: 3px;
+        background: #000;
+        opacity: 0.85;
+        transition: background 0.2s;
+        pointer-events: none;
+      }
+      .hint {
+        position: fixed;
+        bottom: 10px;
+        left: 0;
+        right: 0;
+        text-align: center;
+        font-size: 11px;
+        color: var(--muted);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="stage">
+      <div class="phone" id="phone">
+        <span class="btn action"></span><span class="btn vol-up"></span><span class="btn vol-down"></span><span class="btn power"></span>
+        <div class="screen">
+          <iframe id="app" src="/?frame=iphone" title="Dinn"></iframe>
+          <div class="status">
+            <span id="clock">9:41</span>
+            <span class="right">
+              <!-- sinal -->
+              <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="1" /><rect x="5" y="5.5" width="3" height="6.5" rx="1" /><rect x="10" y="3" width="3" height="9" rx="1" /><rect x="15" y="0" width="3" height="12" rx="1" /></svg>
+              <!-- wi-fi -->
+              <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><path d="M8 2.4c2.3 0 4.4.9 6 2.4l1.1-1.2A10.2 10.2 0 0 0 8 .7C5.3.7 2.8 1.7.9 3.6L2 4.8a8.6 8.6 0 0 1 6-2.4Zm0 3.4c1.4 0 2.6.5 3.6 1.4l1.1-1.2A6.8 6.8 0 0 0 8 4.1a6.8 6.8 0 0 0-4.7 1.9l1.1 1.2A5.1 5.1 0 0 1 8 5.8Zm0 3.4c.5 0 .9.2 1.2.5L8 11 6.8 9.7c.3-.3.7-.5 1.2-.5Z" /></svg>
+              <!-- bateria -->
+              <svg width="27" height="13" viewBox="0 0 27 13"><rect x="0.5" y="0.5" width="23" height="12" rx="3.8" fill="none" stroke="currentColor" opacity=".4" /><rect x="2" y="2" width="20" height="9" rx="2.5" fill="currentColor" /><path d="M25 4.5v4a2 2 0 0 0 0-4Z" fill="currentColor" opacity=".5" /></svg>
+            </span>
+          </div>
+          <div class="island"></div>
+          <div class="home-indicator"></div>
+        </div>
+      </div>
+    </div>
+    <p class="hint">Pré-visualização · o app real roda em <b>localhost:5173</b></p>
+
+    <script>
+      const devices = {
+        se: { w: 375, h: 667, r: 0, island: false },
+        pro: { w: 393, h: 852, r: 58, island: true },
+        max: { w: 430, h: 932, r: 62, island: true },
+      }
+      const phone = document.getElementById('phone')
+      const iframe = document.getElementById('app')
+
+      function fit() {
+        const stage = document.querySelector('.stage').getBoundingClientRect()
+        const w = phone.offsetWidth
+        const h = phone.offsetHeight
+        const s = Math.min(1, (stage.height - 24) / h, (stage.width - 24) / w)
+        phone.style.transform = `scale(${s})`
+      }
+
+      function setDevice(key) {
+        const d = devices[key]
+        phone.style.setProperty('--w', d.w + 'px')
+        phone.style.setProperty('--h', d.h + 'px')
+        phone.style.setProperty('--r', d.r + 'px')
+        document.querySelector('.island').style.display = d.island ? '' : 'none'
+        document.querySelector('.home-indicator').style.display = d.island ? '' : 'none'
+        document.querySelector('.status').style.height = d.island ? '54px' : '20px'
+        document.querySelector('.status').style.padding = d.island ? '6px 34px 0 46px' : '0 8px'
+        document.querySelector('.status').style.fontSize = d.island ? '16px' : '12px'
+        // o SE não tem Dynamic Island: o app usa uma área segura menor
+        iframe.src = `/?frame=${d.island ? 'iphone' : 'se'}`
+        requestAnimationFrame(fit)
+      }
+
+      addEventListener('resize', fit)
+
+      // lê a cor de fundo do app sob a barra de status e sob a barrinha de baixo (mesmo domínio)
+      function bgAt(doc, x, y) {
+        let el = doc.elementFromPoint(x, y)
+        while (el) {
+          const c = getComputedStyle(el).backgroundColor
+          const m = c.match(/[\d.]+/g)
+          if (m && (m.length < 4 || Number(m[3]) > 0.5)) return m.slice(0, 3).map(Number)
+          el = el.parentElement
+        }
+        return [246, 247, 246]
+      }
+      const isDark = ([r, g, b]) => 0.2126 * r + 0.7152 * g + 0.0722 * b < 140
+      function syncChrome() {
+        try {
+          const doc = iframe.contentDocument
+          if (!doc?.body) return
+          const w = iframe.clientWidth
+          // superfícies verdes da marca (topo do Início, bloqueio) não recebem toque, então são checadas pela posição
+          const brandOnTop = [...doc.querySelectorAll('.grad-green')].some((el) => {
+            const r = el.getBoundingClientRect()
+            return r.top <= 24 && r.bottom >= 24 && r.width > 0 && getComputedStyle(el).visibility !== 'hidden'
+          })
+          const dimmed = !!doc.querySelector('[data-vaul-overlay][data-state="open"]')
+          const top = bgAt(doc, w / 2 + 90, 24)
+          document.querySelector('.status').style.color = brandOnTop || dimmed || isDark(top) ? '#fff' : '#000'
+          const bottom = bgAt(doc, w / 2, iframe.clientHeight - 6)
+          document.querySelector('.home-indicator').style.background = isDark(bottom) ? '#fff' : '#000'
+        } catch {}
+      }
+      setInterval(syncChrome, 300)
+
+      const clock = () => {
+        const d = new Date()
+        document.getElementById('clock').textContent = `${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}`
+      }
+      clock()
+      setInterval(clock, 15000)
+
+      setDevice('pro')
+    </script>
+  </body>
+</html>

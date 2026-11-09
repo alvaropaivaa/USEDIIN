@@ -1,0 +1,11 @@
+{
+  "style": "Prints reais do app Dinn (iPhone, tema claro), com dados de exemplo da usuária fictícia Mariana. Origem: Downloads/dinn-prints.",
+  "anchor": "",
+  "assets": [
+    {"file": "01-inicio-moldura.png", "use": "Início: saldo atual, receitas e despesas do mês, a pagar. Para 'tudo num lugar só'."},
+    {"file": "03-contas-e-cartoes-moldura.png", "use": "Contas e cartões com logo do banco e fatura."},
+    {"file": "04-orcamento-moldura.png", "use": "Orçamento: limite geral do mês (68%), restante e quanto dá por dia."},
+    {"file": "05-metas-moldura.png", "use": "Metas: guardado nas metas, progresso e previsão de quando chega."},
+    {"file": "08-assistente-trecho.png", "use": "Trecho do chat: 'gastei 45,90 no ifood' vira despesa lançada com Desfazer. Para 'lance do jeito que você fala'."}
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "id": "/",
+  "name": "Dinn · Finanças pessoais",
+  "short_name": "Dinn",
+  "description": "Receitas, despesas, contas, cartões, limites de gastos, metas e dívidas, com avisos de vencimento no celular.",
+  "lang": "pt-BR",
+  "dir": "ltr",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "background_color": "#03140b",
+  "theme_color": "#0f3b2c",
+  "categories": ["finance", "productivity"],
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ],
+  "shortcuts": [
+    { "name": "Nova despesa", "short_name": "Despesa", "url": "/?n=new:despesa", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Nova receita", "short_name": "Receita", "url": "/?n=new:receita", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Contas a pagar", "short_name": "A pagar", "url": "/?n=due:pendente", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Notificações", "short_name": "Avisos", "url": "/?n=inbox", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] }
+  ]
+}

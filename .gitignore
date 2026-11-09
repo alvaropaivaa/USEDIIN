@@ -1,0 +1,19 @@
+# dependências e build
+node_modules/
+dist/
+*.tsbuildinfo
+
+# segredos: nunca subir (chaves do Supabase, VAPID, CRON_SECRET)
+.env
+.env.*
+!.env.example
+supabase/functions/.env
+
+# skill /carrossel: só o código, sem as dependências
+.claude/skills/carrossel/node_modules/
+.claude/settings.local.json
+
+# sistema
+*.log
+.DS_Store
+Thumbs.db

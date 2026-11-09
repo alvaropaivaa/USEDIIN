@@ -1,0 +1,24 @@
+{
+  "nome": "Dinn",
+  "tagline": "Seu dinheiro rende mais",
+  "cores": {
+    "primaria": "#15803D",
+    "texto": "#0F1512",
+    "texto-suave": "#5B6560",
+    "fundo": "#F6F7F6",
+    "fundo-profundo": "#E3EFE7",
+    "apoio": [
+      "#0F3B2C",
+      "#22C55E"
+    ]
+  },
+  "fonte": {
+    "familia": "Plus Jakarta Sans",
+    "arquivos": {},
+    "css": "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap"
+  },
+  "logo": "logo.svg",
+  "plataformas": [
+    "Instagram"
+  ]
+}

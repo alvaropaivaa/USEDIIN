@@ -1,0 +1,21 @@
+{
+  "style": "Mascote do Dinn: seta verde 3D em vinil brilhante, visor preto com olhos e sorriso de linha luminosa creme, luvas brancas, tênis verdes com faixas brancas. Fundo transparente.",
+  "anchor": "05-metas.png",
+  "assets": [
+    {"file": "07-apontando-duvida.png", "use": "Alta (1978px). Saindo da borda de baixo, apontando, com celular e balão '?'. Capa com pergunta. Halo verde: usar sobre verde-escuro."},
+    {"file": "08-acenando-borda.png", "use": "Alta (1448px). Acenando, saindo da borda de baixo. CTA e boas-vindas. Usar sobre verde-escuro."},
+    {"file": "01-nuvem.png", "use": "Pequeno (560px). Na nuvem, polegar para cima, moedas. Boas-vindas."},
+    {"file": "02-avisos.png", "use": "Pequeno (342px). Sino e celular com aviso. Vencimentos."},
+    {"file": "03-categorias.png", "use": "Pequeno (381px). Potes de moedas com ícones. Categorias."},
+    {"file": "04-conversa.png", "use": "Pequeno (322px). Digitando no celular, balões. Chat."},
+    {"file": "05-metas.png", "use": "Pequeno (382px). Escada de moedas, bandeira, cofrinho. Metas."},
+    {"file": "06-apontando.png", "use": "Médio (760px). Versão menor do 07."},
+    {"file": "10-carteira-duvida.png", "use": "Pequeno (431px), da folha do quiz. Carteira aberta e '?'. Ideal para 'pra onde foi o dinheiro': pedir versão em alta."},
+    {"file": "11-anotando.png", "use": "Pequeno, da folha do quiz. Anotando no caderno, recibo. Controle no papel."},
+    {"file": "12-cartoes.png", "use": "Pequeno, da folha do quiz. Leque de cartões, polegar. Cartões."},
+    {"file": "13-relogio-aviso.png", "use": "Pequeno, da folha do quiz. Carta e despertador. Lembretes."},
+    {"file": "14-meta-alvo.png", "use": "Pequeno, da folha do quiz. Alvo com flecha sobre moedas. Objetivos."},
+    {"file": "15-celular-conversa.png", "use": "Pequeno, da folha do quiz. Celular e balão de conversa."},
+    {"file": "icone-app.png", "use": "Ícone do app (D verde)."}
+  ]
+}
