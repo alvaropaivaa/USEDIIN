@@ -101,6 +101,15 @@ body,
   height: 100%;
 }
 
+/*
+ * iOS 26 no app instalado (tela de início): a página recebe menos altura que a tela e o sistema pinta a
+ * sobra embaixo, fora do alcance da página, com a cor de fundo do documento (WebKit 301994). Com o fundo
+ * do html na cor da barra inferior, essa faixa vira continuação da barra; o corpo segue com o fundo do app.
+ */
+html {
+  background-color: var(--surface);
+}
+
 body {
   margin: 0;
   background: var(--bg);
