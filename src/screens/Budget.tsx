@@ -214,18 +214,10 @@ function OverallCard({ month, ref_, spent, limit, alert, editing, onEdit }: { mo
         </div>
       </div>
 
+      {/* o restante e o valor por dia já estão nos quadros acima; aqui só o que falta do mês */}
       {current && (
-        <p className="mt-3 text-[12.5px] leading-[18px] text-label-2">
-          {left >= 0 ? (
-            <>
-              Você ainda pode gastar <span className="font-semibold text-label">{money(left)}</span> · {money(left / daysLeft)} por dia · {daysLeft} {daysLeft === 1 ? 'dia restante' : 'dias restantes'}.
-            </>
-          ) : (
-            <>
-              Você ultrapassou o limite em <span className="font-semibold text-red">{money(-left)}</span>.
-            </>
-          )}{' '}
-          Hoje, dia {day} de {days}: {Math.round(passed * 100)}% do mês já passou.
+        <p className="tabular mt-3 text-[12.5px] text-label-2">
+          {daysLeft} {daysLeft === 1 ? 'dia' : 'dias'} até o fim do mês
         </p>
       )}
     </motion.div>

@@ -1,6 +1,5 @@
-import { useState } from 'react'
 import { motion } from 'motion/react'
-import { AlertTriangle, ArrowDownLeft, ArrowLeftRight, ArrowRight, ArrowUpRight, Bell, CalendarClock, CalendarDays, Clock, CreditCard, Eye, EyeOff, Minus, Plus, RefreshCw, Search, Settings2, Target, TrendingDown, TrendingUp } from 'lucide-react'
+import { ArrowDownLeft, ArrowLeftRight, ArrowRight, ArrowUpRight, Bell, CalendarClock, CreditCard, Eye, EyeOff, Minus, Plus, Search, Target, TrendingDown, TrendingUp } from 'lucide-react'
 import clsx from 'clsx'
 import { relDay } from '../lib/dates'
 import { isPrivate, money } from '../lib/format'
@@ -9,10 +8,10 @@ import { emptyFilter, useData, useUI } from '../lib/store'
 import { haptic } from '../lib/haptics'
 import { useNotices } from '../lib/notify'
 import { useDesktop } from '../lib/media'
-import { CashFlowChart, Donut, FlowLegend } from '../components/charts'
 import { CategoryIcon, TxRow, agendaText, openAgenda } from '../components/finance'
-import { Empty, Progress, Row, Section, SectionHeader, Segmented, initials, spring } from '../components/ui'
-import { ddmm, greeting, savingsPct, useHomeData, type HomeData } from './homeData'
+import { FirstSteps } from '../components/FirstSteps'
+import { Empty, Progress, Row, Section, initials, spring } from '../components/ui'
+import { ddmm, greeting, useHomeData, type HomeData } from './homeData'
 import HomeDesktop from './HomeDesktop'
 
 /** Tela inicial: no computador, painel no estilo dashboard; no celular, o layout de sempre. */
@@ -42,23 +41,21 @@ export function Trend({ now, prev, label, good = true, light }: { now: number; p
 
 const toneText = { green: 'text-green', orange: 'text-orange', red: 'text-red' } as const
 
+// Celular: só o que pede atenção agora. Saldo e o mês no cartão de cima, o que vence, o orçamento só quando
+// alguma categoria aperta e os últimos lançamentos. Gráficos, categorias e metas ficam nas telas deles.
 function HomeMobile() {
   const d = useHomeData()
-  const { f, settings, month, counts, forecast, end, due, period, setPeriod, flow, spending, goals, recent } = d
-  const { setTab, openSettings, setSearchFocus, openInbox, refreshDay, openTx, setTxFilter, openGoal, openCategory } = useUI()
+  const { f, settings, month, counts, forecast, end, due, spending, recent } = d
+  const { setTab, openSettings, setSearchFocus, openInbox, openTx, setTxFilter, openCategory } = useUI()
   const unread = useNotices((s) => s.items.reduce((n, i) => n + (i.read ? 0 : 1), 0))
   const setSettings = useData((s) => s.setSettings)
-  const [updatedAt, setUpdatedAt] = useState(() => new Date())
-  const [spin, setSpin] = useState(0)
   const owner = settings.owner.trim()
   const showType = (type: 'receita' | 'despesa') => (haptic(), setTxFilter({ ...emptyFilter, type }), setTab('transactions'))
-
-  const tiles: { label: string; value: string; icon: typeof Clock; alert?: boolean; onClick: () => void }[] = [
-    { label: 'Hoje', value: String(counts.hoje), icon: CalendarClock, onClick: () => (setTxFilter({ ...emptyFilter, status: 'pendente' }), setTab('transactions')) },
-    { label: 'Atrasadas', value: String(counts.atrasadas), icon: AlertTriangle, alert: counts.atrasadas > 0, onClick: () => (setTxFilter({ ...emptyFilter, status: 'atrasado' }), setTab('transactions')) },
-    { label: '7 dias', value: String(counts.semana), icon: CalendarDays, onClick: () => (setTxFilter({ ...emptyFilter, status: 'pendente' }), setTab('transactions')) },
-    { label: 'Faturas', value: String(d.invoices.filter((i) => i.open > 0).length), icon: CreditCard, onClick: () => setTab('accounts') },
-  ]
+  const showPending = () => (haptic(), setTxFilter({ ...emptyFilter, status: 'pendente' }), setTab('transactions'))
+  // orçamento: só as categorias em atenção ou estouradas (as tranquilas ficam na aba Orçamento)
+  const tight = spending.budgets.filter((b) => b.tone !== 'green').slice(0, 3)
+  const hasBudget = month.limit > 0 || spending.budgets.length > 0
+  const newAccount = settings.firstSteps === 'new'
 
   return (
     <div className="no-scrollbar h-full overflow-y-auto overflow-x-hidden">
@@ -71,8 +68,9 @@ function HomeMobile() {
         </div>
 
         <div className="pt-safe relative mx-auto max-w-xl px-5 pb-40">
+          {/* a foto abre o perfil e as configurações (também em Mais) */}
           <div className="flex items-center gap-2.5 pt-3">
-            <button onClick={() => (haptic(), openSettings(true, 'perfil'))} aria-label="Perfil" className="shrink-0">
+            <button onClick={() => (haptic(), openSettings(true, 'perfil'))} aria-label="Perfil e configurações" className="shrink-0">
               <span className="grid size-11 place-items-center overflow-hidden rounded-full bg-white/10 text-[13px] font-semibold text-white ring-1 ring-white/15">
                 {settings.photo ? <img src={settings.photo} alt="" className="size-full object-cover" /> : owner ? initials(owner) : 'JP'}
               </span>
@@ -83,13 +81,6 @@ function HomeMobile() {
             >
               <Search className="size-[18px] shrink-0 text-white/80" />
               <span className="truncate">Buscar lançamento, valor…</span>
-            </button>
-            <button
-              aria-label="Configurações"
-              onClick={() => (haptic(), openSettings(true))}
-              className="grid size-11 shrink-0 place-items-center rounded-full bg-white/[0.07] text-white ring-1 ring-white/15"
-            >
-              <Settings2 className="size-[18px]" />
             </button>
             <button
               aria-label={unread ? `Notificações, ${unread} não lidas` : 'Notificações'}
@@ -185,259 +176,117 @@ function HomeMobile() {
                 </motion.button>
               </div>
             </motion.div>
-
-            <div className="mt-3 flex items-center justify-between px-1 text-[13px] text-label-2">
-              <span className="flex items-center gap-1.5">
-                <Clock className="size-4" />
-                Atualizado hoje às {String(updatedAt.getHours()).padStart(2, '0')}h{String(updatedAt.getMinutes()).padStart(2, '0')}
-              </span>
-              <motion.button
-                aria-label="Atualizar"
-                animate={{ rotate: spin * 360 }}
-                transition={{ duration: 0.6 }}
-                onClick={() => (haptic(), refreshDay(), setSpin((s) => s + 1), setUpdatedAt(new Date()))}
-                className="grid size-8 place-items-center rounded-full"
-              >
-                <RefreshCw className="size-[18px]" />
-              </motion.button>
-            </div>
           </section>
 
-          {/* ─── Resumo do mês ─── */}
-          <section className="mt-5">
-            <SectionHeader action="Relatórios →" onAction={() => setTab('reports')}>
-              Resumo do mês
-            </SectionHeader>
-            <div className="mb-6 grid grid-cols-2 gap-3">
-              <MonthTile label="Receitas" value={money(month.now.income)} tone="green" hint={<Trend now={month.toDate.income} prev={month.before.income} label={month.label} />} fallback="recebido + a receber" onClick={() => showType('receita')} />
-              <MonthTile
-                label="Despesas"
-                value={money(month.now.expense)}
-                hint={month.tone && <span className={clsx('text-[11px] font-semibold', toneText[month.tone])}>{budgetLabel[month.tone]} · {Math.round(month.ratio * 100)}% do limite</span>}
-                fallback={<Trend now={month.toDate.expense} prev={month.before.expense} label={month.label} good={false} />}
-                onClick={() => showType('despesa')}
-              />
-              <MonthTile
-                label="Balanço"
-                value={money(month.now.balance)}
-                tone={month.now.balance < 0 ? 'red' : 'green'}
-                hint={month.savings === null ? undefined : month.savings >= 0 ? `economia de ${savingsPct(month.savings)}` : `${savingsPct(-month.savings)} acima das receitas`}
-                fallback="receitas − despesas"
-              />
-              <MonthTile label="A pagar no mês" value={money(counts.pagar)} hint={counts.atrasadas ? <span className="text-[11px] font-semibold text-red">{counts.atrasadas} atrasada{counts.atrasadas > 1 ? 's' : ''}</span> : undefined} fallback="contas, parcelas e faturas" onClick={() => (setTxFilter({ ...emptyFilter, status: 'pendente' }), setTab('transactions'))} />
-            </div>
-            {settings.goal > 0 && (
-              <button onClick={() => openSettings(true, 'meta')} className="-mt-3 mb-6 block w-full rounded-[22px] bg-surface p-4 text-left shadow-card">
-                <div className="mb-2 flex items-center justify-between">
-                  <span className="flex items-center gap-2 text-[13px] text-label-2">
-                    <Target className="size-4" /> Meta de economia do mês
-                  </span>
-                  <span className="tabular text-[13px] font-semibold">{Math.max(0, Math.min(999, Math.round((month.now.balance / settings.goal) * 100)))}%</span>
-                </div>
-                <Progress value={month.now.balance / settings.goal} />
-                <p className="tabular mt-2 text-[12px] text-label-2">
-                  {money(Math.max(0, month.now.balance))} de {money(settings.goal)}
-                  {month.now.balance < settings.goal ? ` · faltam ${money(settings.goal - Math.max(0, month.now.balance))}` : ' · meta batida ✓'}
-                </p>
-              </button>
-            )}
-          </section>
+          {/* conta nova: o que falta para começar (some ao fechar ou ao concluir) */}
+          <FirstSteps compact className="mt-4" />
 
-          {/* ─── Contas a pagar e receber ─── */}
-          <section>
-            <div className="mb-3 flex items-end justify-between px-1">
-              <h2 className="text-[20px] font-semibold tracking-[-0.02em]">A pagar e receber</h2>
-              <button onClick={() => (haptic(), setTxFilter({ ...emptyFilter, status: 'pendente' }), setTab('transactions'))} className="flex items-center gap-1 text-[14px] font-semibold text-tint">
-                Ver pendentes <ArrowRight className="size-4" />
-              </button>
-            </div>
-            <div className="mb-3 grid grid-cols-4 gap-2.5">
-              {tiles.map((t) => (
-                <motion.button
-                  key={t.label}
-                  whileTap={{ scale: 0.94 }}
-                  onClick={() => (haptic(), t.onClick())}
-                  className="flex h-[104px] flex-col items-center justify-center rounded-[20px] bg-surface px-1 text-center shadow-card"
-                >
-                  <span className={clsx('grid size-8 place-items-center rounded-full', t.alert ? 'bg-red/10 text-red' : 'bg-fill text-label-2')}>
-                    <t.icon className="size-4" strokeWidth={2} />
-                  </span>
-                  <span className={clsx('tabular mt-2 text-[20px] font-semibold leading-none tracking-[-0.02em]', t.alert ? 'text-red' : 'text-label')}>{t.value}</span>
-                  <span className="mt-1.5 w-full truncate text-[11px] leading-none text-label-2">{t.label}</span>
-                </motion.button>
-              ))}
-            </div>
-            <Section>
-              {due.length === 0 ? (
-                <Empty icon={<CalendarClock className="size-9" strokeWidth={1.5} />} title="Nada para pagar" text="Contas pendentes, parcelas e faturas aparecem aqui." />
-              ) : (
-                due.slice(0, 5).map((it) => (
-                  <Row
-                    key={it.key}
-                    icon={it.income ? <ArrowDownLeft className="size-[18px] text-green" /> : 'invoice' in it.source ? <CreditCard className="size-[18px]" /> : <ArrowUpRight className="size-[18px]" />}
-                    label={it.title}
-                    detail={`${it.detail} · ${relDay(it.date)}`}
-                    value={
-                      <span className="flex flex-col items-end">
-                        <span className={clsx(it.income && 'text-green')}>{money(it.amount)}</span>
-                        <span className={`text-[11px] font-semibold ${agendaText[it.status].cls}`}>{agendaText[it.status].label || (it.income ? 'A receber' : 'A pagar')}</span>
-                      </span>
-                    }
-                    onClick={() => openAgenda(it)}
-                  />
-                ))
-              )}
-            </Section>
-          </section>
-
-          {/* ─── Fluxo de caixa ─── */}
-          <section>
-            <div className="mb-6 rounded-[24px] bg-surface p-4 shadow-card">
-              <Segmented
-                value={period}
-                onChange={setPeriod}
-                options={[
-                  { value: 'semana', label: 'Semana' },
-                  { value: 'mes', label: 'Mês' },
-                  { value: 'semestre', label: '6 meses' },
-                ]}
-              />
-              <div className="mb-4 px-1">
-                <p className="text-[15px] font-semibold">Fluxo de caixa</p>
-                <p className="tabular text-[12px] text-label-2">Entradas × saídas · {flow.range}</p>
+          {/* meta de economia do mês: só para quem definiu uma */}
+          {settings.goal > 0 && (
+            <button onClick={() => openSettings(true, 'meta')} className="mt-4 block w-full rounded-[22px] bg-surface p-4 text-left shadow-card">
+              <div className="mb-2 flex items-center justify-between">
+                <span className="flex items-center gap-2 text-[13px] text-label-2">
+                  <Target className="size-4" /> Meta de economia do mês
+                </span>
+                <span className="tabular text-[13px] font-semibold">{Math.max(0, Math.min(999, Math.round((month.now.balance / settings.goal) * 100)))}%</span>
               </div>
-              <div className="mb-4 grid grid-cols-3 divide-x divide-separator">
-                <div className="pr-3">
-                  <p className="tabular truncate text-[17px] font-semibold text-green">{money(flow.income).replace(/,\d{2}$/, '')}</p>
-                  <p className="text-[11px] text-label-2">entradas</p>
-                </div>
-                <div className="px-3">
-                  <p className="tabular truncate text-[17px] font-semibold">{money(flow.expense).replace(/,\d{2}$/, '')}</p>
-                  <p className="text-[11px] text-label-2">saídas</p>
-                </div>
-                <div className="pl-3">
-                  <p className={clsx('tabular truncate text-[17px] font-semibold', flow.balance < 0 && 'text-red')}>{money(flow.balance).replace(/,\d{2}$/, '')}</p>
-                  <p className="text-[11px] text-label-2">balanço</p>
-                </div>
-              </div>
-              <CashFlowChart data={flow.data} />
-              <FlowLegend />
-            </div>
-          </section>
+              <Progress value={month.now.balance / settings.goal} />
+              <p className="tabular mt-2 text-[12px] text-label-2">
+                {money(Math.max(0, month.now.balance))} de {money(settings.goal)}
+                {month.now.balance < settings.goal ? ` · faltam ${money(settings.goal - Math.max(0, month.now.balance))}` : ' · meta batida'}
+              </p>
+            </button>
+          )}
 
-          {/* ─── Despesas por categoria ─── */}
-          <section>
-            <SectionHeader action="Ver relatório" onAction={() => setTab('reports')}>
-              Despesas por categoria
-            </SectionHeader>
-            <div className="mb-6 rounded-[22px] bg-surface p-4 shadow-card">
-              {spending.total > 0 ? (
-                <Donut
-                  slices={[
-                    ...spending.sorted.slice(0, 5).map((x) => ({ label: x.cat.name, value: x.value, color: x.cat.color })),
-                    ...(spending.sorted.length > 5 || spending.uncategorized
-                      ? [{ label: 'Outras', value: spending.sorted.slice(5).reduce((s, x) => s + x.value, 0) + spending.uncategorized, color: 'var(--label-3)' }]
-                      : []),
-                  ]}
-                  center={money(spending.total).replace(/,\d{2}$/, '')}
-                  caption="no mês"
-                />
-              ) : (
-                <p className="py-4 text-center text-[13px] text-label-2">As despesas do mês aparecem aqui, separadas por categoria.</p>
-              )}
-            </div>
-          </section>
-
-          {/* ─── Limites de gastos ─── */}
-          <section>
-            <SectionHeader action="Orçamento →" onAction={() => setTab('budget')}>
-              Limites de gastos
-            </SectionHeader>
-            {month.limit > 0 || spending.budgets.length ? (
-              <Section>
-                {month.limit > 0 && month.tone && (
-                  <div className="relative px-4 py-3.5">
-                    <div className="mb-2 flex items-center justify-between text-[13px]">
-                      <span className="font-semibold">Limite geral</span>
-                      <span className={clsx('font-semibold', toneText[month.tone])}>{budgetLabel[month.tone]}</span>
-                    </div>
-                    <Progress value={month.ratio} tone={month.tone} />
-                    <p className="tabular mt-1.5 text-[12px] text-label-2">
-                      {money(month.spent)} de {money(month.limit)} · {month.ratio <= 1 ? `restam ${money(month.limit - month.spent)}` : `passou ${money(month.spent - month.limit)}`}
-                    </p>
-                  </div>
+          {/* ─── O que vence: contas, parcelas, faturas e o que tem a receber ─── */}
+          <Section
+            className="mt-7"
+            header={
+              <span className="flex items-center gap-2">
+                A pagar e receber
+                {counts.atrasadas > 0 && (
+                  <span className="rounded-full bg-red/10 px-2 py-0.5 text-[11px] font-semibold text-red">
+                    {counts.atrasadas} {counts.atrasadas === 1 ? 'atrasada' : 'atrasadas'}
+                  </span>
                 )}
-                {spending.budgets.slice(0, 4).map((b) => (
-                  <button key={b.cat.id} onClick={() => (haptic(), openCategory(true, { id: b.cat.id }))} className="relative flex w-full items-center gap-3 px-4 py-3 text-left">
-                    <CategoryIcon category={b.cat} size={36} />
-                    <span className="min-w-0 flex-1">
-                      <span className="flex items-center justify-between gap-2 text-[14px]">
-                        <span className="truncate font-semibold">{b.cat.name}</span>
-                        <span className={clsx('tabular shrink-0 text-[12px] font-semibold', toneText[b.tone])}>{Math.round(b.ratio * 100)}%</span>
-                      </span>
-                      <Progress value={b.ratio} tone={b.tone} className="mt-1.5" />
-                      <span className="tabular mt-1 block truncate text-[11px] text-label-2">
-                        {money(b.spent)} de {money(b.limit)}
-                      </span>
-                    </span>
-                  </button>
-                ))}
-              </Section>
+              </span>
+            }
+            action={due.length ? 'Ver todos' : undefined}
+            onAction={showPending}
+          >
+            {due.length === 0 ? (
+              <Empty icon={<CalendarClock className="size-9" strokeWidth={1.5} />} title="Nada para pagar" text="Contas pendentes, parcelas e faturas aparecem aqui." />
             ) : (
+              due.slice(0, 4).map((it) => (
+                <Row
+                  key={it.key}
+                  icon={it.income ? <ArrowDownLeft className="size-[18px] text-green" /> : 'invoice' in it.source ? <CreditCard className="size-[18px]" /> : <ArrowUpRight className="size-[18px]" />}
+                  label={it.title}
+                  detail={`${it.detail} · ${relDay(it.date)}`}
+                  value={
+                    <span className="flex flex-col items-end">
+                      <span className={clsx(it.income && 'text-green')}>{money(it.amount)}</span>
+                      <span className={`text-[11px] font-semibold ${agendaText[it.status].cls}`}>{agendaText[it.status].label || (it.income ? 'A receber' : 'A pagar')}</span>
+                    </span>
+                  }
+                  onClick={() => openAgenda(it)}
+                />
+              ))
+            )}
+          </Section>
+
+          {/* ─── Orçamento: o limite do mês e só as categorias que apertam ─── */}
+          {hasBudget ? (
+            <Section header="Orçamento do mês" action="Ver tudo" onAction={() => setTab('budget')}>
+              {month.limit > 0 && month.tone && (
+                <button onClick={() => (haptic(), setTab('budget'))} className="relative block w-full px-4 py-3.5 text-left">
+                  <span className="mb-2 flex items-center justify-between text-[13px]">
+                    <span className="font-semibold">Limite geral</span>
+                    <span className={clsx('font-semibold', toneText[month.tone])}>{budgetLabel[month.tone]}</span>
+                  </span>
+                  <Progress value={month.ratio} tone={month.tone} />
+                  <span className="tabular mt-1.5 block text-[12px] text-label-2">
+                    {month.ratio <= 1 ? `Restam ${money(month.limit - month.spent)}` : `Passou ${money(month.spent - month.limit)}`} de {money(month.limit)}
+                  </span>
+                </button>
+              )}
+              {tight.map((b) => (
+                <button key={b.cat.id} onClick={() => (haptic(), openCategory(true, { id: b.cat.id }))} className="relative flex w-full items-center gap-3 px-4 py-3 text-left">
+                  <CategoryIcon category={b.cat} size={36} />
+                  <span className="min-w-0 flex-1">
+                    <span className="flex items-center justify-between gap-2 text-[14px]">
+                      <span className="truncate font-semibold">{b.cat.name}</span>
+                      <span className={clsx('tabular shrink-0 text-[12px] font-semibold', toneText[b.tone])}>{Math.round(b.ratio * 100)}%</span>
+                    </span>
+                    <Progress value={b.ratio} tone={b.tone} className="mt-1.5" />
+                    <span className="tabular mt-1 block truncate text-[11px] text-label-2">
+                      {money(b.spent)} de {money(b.limit)}
+                    </span>
+                  </span>
+                </button>
+              ))}
+              {!(month.limit > 0 && month.tone) && tight.length === 0 && <Row icon={<Target className="size-[18px]" />} label="Tudo dentro dos limites" chevron onClick={() => setTab('budget')} />}
+            </Section>
+          ) : (
+            // conta nova: os primeiros passos já pedem isso
+            !newAccount && (
               <button onClick={() => setTab('budget')} className="mb-6 flex w-full items-center gap-2 rounded-[22px] border border-dashed border-separator px-4 py-3 text-[13px] text-label-2">
                 <Target className="size-4" /> Definir quanto quer gastar por categoria
               </button>
-            )}
-          </section>
-
-          {/* ─── Metas ─── */}
-          {goals.length > 0 && (
-            <section>
-              <Section header="Minhas metas" action="Ver todas" onAction={() => setTab('goals')}>
-                {goals.slice(0, 3).map(({ goal, stats }) => (
-                  <button key={goal.id} onClick={() => (haptic(), openGoal(true, goal.id))} className="relative flex w-full items-center gap-3 px-4 py-3 text-left">
-                    <CategoryIcon category={goal} size={36} />
-                    <span className="min-w-0 flex-1">
-                      <span className="flex items-center justify-between gap-2 text-[14px]">
-                        <span className="truncate font-semibold">{goal.name}</span>
-                        <span className="tabular shrink-0 text-[12px] font-semibold text-label-2">{Math.round(stats.ratio * 100)}%</span>
-                      </span>
-                      <Progress value={stats.ratio} className="mt-1.5" />
-                      <span className="tabular mt-1 block truncate text-[11px] text-label-2">
-                        {money(stats.saved)} de {money(goal.target)}
-                      </span>
-                    </span>
-                  </button>
-                ))}
-              </Section>
-            </section>
+            )
           )}
 
           {/* ─── Últimos lançamentos ─── */}
-          <section>
-            <Section header="Últimos lançamentos" action="Ver todos" onAction={() => setTab('transactions')}>
-              {recent.length === 0 ? (
-                <Empty art="categorias" title="Nenhum lançamento ainda" text="Toque no + para registrar a primeira receita ou despesa." />
-              ) : (
-                recent.slice(0, 5).map((t) => <TxRow key={t.id} tx={t} look={f.look} showDate onClick={() => openTx(true, { id: t.id })} />)
-              )}
-            </Section>
-          </section>
+          <Section header="Últimos lançamentos" action="Ver todos" onAction={() => setTab('transactions')}>
+            {recent.length === 0 ? (
+              <Empty art="categorias" title="Nenhum lançamento ainda" text="Toque no + para registrar a primeira receita ou despesa." />
+            ) : (
+              recent.slice(0, 4).map((t) => <TxRow key={t.id} tx={t} look={f.look} showDate onClick={() => openTx(true, { id: t.id })} />)
+            )}
+          </Section>
         </div>
       </div>
     </div>
-  )
-}
-
-/** Cartão pequeno do resumo do mês (grade 2×2). */
-function MonthTile({ label, value, hint, fallback, tone, onClick }: { label: string; value: string; hint?: React.ReactNode; fallback?: React.ReactNode; tone?: 'green' | 'red'; onClick?: () => void }) {
-  const Comp = onClick ? motion.button : motion.div
-  return (
-    <Comp whileTap={onClick ? { scale: 0.97 } : undefined} onClick={onClick ? () => (haptic(), onClick()) : undefined} className="min-w-0 rounded-[22px] bg-surface p-4 text-left shadow-card">
-      <p className="text-[12px] font-medium text-label-2">{label}</p>
-      <p className={clsx('tabular mt-1 truncate text-[17px] font-semibold tracking-[-0.02em]', tone === 'green' && 'text-green', tone === 'red' && 'text-red')}>{value}</p>
-      <div className="mt-0.5 truncate text-[11px] font-medium text-label-2">{hint || fallback}</div>
-    </Comp>
   )
 }
 

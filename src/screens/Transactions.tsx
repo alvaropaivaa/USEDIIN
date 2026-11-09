@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { AlertTriangle, ArrowDownLeft, ArrowLeftRight, ArrowUpRight, ChevronDown, Plus, ReceiptText, Search, SlidersHorizontal, X } from 'lucide-react'
+import { AlertTriangle, ArrowDownLeft, ArrowLeftRight, ArrowUpRight, Plus, ReceiptText, Search, SlidersHorizontal, X } from 'lucide-react'
 import clsx from 'clsx'
 import { addDays, diffDays, monthKey, monthLabel, parseISO } from '../lib/dates'
 import { money } from '../lib/format'
@@ -205,7 +205,8 @@ export default function Transactions() {
       >
         <Money value={sum.balance} />
       </Hero>
-      <div className="mb-5 grid grid-cols-2 gap-3">
+      {/* celular: só o balanço; os quatro números ficam no computador (no celular, os filtros fazem esse papel) */}
+      <div className="mb-5 hidden grid-cols-2 gap-3 lg:grid">
         <StatCard label="Recebidos" value={money(sum.incomePaid)} tone="green" hint={`de ${money(sum.income)} em receitas`} onClick={() => setTxFilter({ type: 'receita', status: 'pago' })} />
         <StatCard label="A receber" value={money(sum.incomePending)} tone={sum.incomePending > 0 ? 'blue' : undefined} hint="receitas pendentes" onClick={() => setTxFilter({ type: 'receita', status: 'pendente' })} />
         <StatCard label="Pagos" value={money(sum.expensePaid)} hint={`de ${money(sum.expense)} em despesas`} onClick={() => setTxFilter({ type: 'despesa', status: 'pago' })} />
@@ -213,6 +214,21 @@ export default function Transactions() {
       </div>
     </>
   )
+
+  const statusChips = (
+    <Chips<TxStatusFilter>
+      value={flt.status}
+      onChange={(status) => setTxFilter({ status })}
+      options={[
+        { value: 'todos', label: 'Todos' },
+        { value: 'pago', label: 'Pagos' },
+        { value: 'pendente', label: 'Pendentes' },
+        { value: 'atrasado', label: 'Atrasados', count: lateCount || undefined },
+      ]}
+    />
+  )
+  // no celular o botão de filtros conta também a situação (pago, pendente, atrasado), que fica dentro dele
+  const mobileCount = extraCount + (flt.status !== 'todos' ? 1 : 0)
 
   const extraFilters = (
     <Section footer={detail && !cardFilter ? 'Com estes filtros, as compras no cartão aparecem uma a uma.' : undefined}>
@@ -276,6 +292,17 @@ export default function Transactions() {
                 <X className="size-3.5" />
               </button>
             )}
+            {/* celular: os filtros moram neste botão */}
+            <button
+              type="button"
+              aria-label={mobileCount ? `Filtros, ${mobileCount} ativos` : 'Filtros'}
+              aria-expanded={showFilters}
+              onClick={() => (haptic(), setShowFilters((v) => !v))}
+              className={clsx('relative -mr-2 grid size-9 shrink-0 place-items-center rounded-full xl:hidden', showFilters || mobileCount ? 'bg-label text-bg' : 'bg-fill text-label-2')}
+            >
+              <SlidersHorizontal className="size-4" />
+              {mobileCount > 0 && <span className="tabular absolute -right-1 -top-1 grid size-[18px] place-items-center rounded-full bg-tint text-[10px] font-semibold text-white ring-2 ring-surface">{mobileCount}</span>}
+            </button>
           </label>
 
           <Chips<TxTypeFilter>
@@ -288,35 +315,20 @@ export default function Transactions() {
               { value: 'transferencia', label: 'Transferências' },
             ]}
           />
-          <Chips<TxStatusFilter>
-            value={flt.status}
-            onChange={(status) => setTxFilter({ status })}
-            options={[
-              { value: 'todos', label: 'Todos' },
-              { value: 'pago', label: 'Pagos' },
-              { value: 'pendente', label: 'Pendentes' },
-              { value: 'atrasado', label: 'Atrasados', count: lateCount || undefined },
-            ]}
-          />
-
-          {/* celular: filtros extras recolhidos; computador largo: sempre à mostra */}
-          <button
-            onClick={() => (haptic(), setShowFilters((v) => !v))}
-            className="mb-4 flex h-10 w-full items-center gap-2 rounded-full bg-surface px-4 text-[14px] font-semibold shadow-card xl:hidden"
-          >
-            <SlidersHorizontal className="size-4 text-label-2" />
-            <span className="flex-1 text-left">Filtros</span>
-            {extraCount > 0 && <span className="tabular grid size-5 place-items-center rounded-full bg-tint text-[11px] text-white">{extraCount}</span>}
-            <ChevronDown className={clsx('size-4 text-label-3 transition-transform', showFilters && 'rotate-180')} />
-          </button>
+          {/* celular: situação e filtros extras recolhidos no botão da busca; computador largo: sempre à mostra */}
           <AnimatePresence initial={false}>
             {showFilters && (
               <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden xl:hidden">
+                <p className="mb-2 px-1 text-[13px] font-semibold text-label-2">Situação</p>
+                {statusChips}
                 {extraFilters}
               </motion.div>
             )}
           </AnimatePresence>
-          <div className="hidden xl:block">{extraFilters}</div>
+          <div className="hidden xl:block">
+            {statusChips}
+            {extraFilters}
+          </div>
 
           {active && (
             <button onClick={() => (haptic(), setTxFilter(emptyFilter))} className="-mt-2 mb-5 flex items-center gap-1.5 px-1 text-[13px] font-semibold text-tint">

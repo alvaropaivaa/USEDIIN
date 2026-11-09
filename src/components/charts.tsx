@@ -22,8 +22,8 @@ function Tip({ active, payload, title }: { active?: boolean; payload?: { name: s
 
 const axis = { tick: { fill: 'var(--label-2)', fontSize: 11 }, axisLine: false, tickLine: false } as const
 
-/** Rosca com total no centro e legenda com percentuais ao lado. */
-export function Donut({ slices, center, caption }: { slices: { label: string; value: number; color: string }[]; center: string; caption: string }) {
+/** Rosca com total no centro e legenda com percentuais ao lado (`legend={false}` quando há lista ao lado). */
+export function Donut({ slices, center, caption, legend = true }: { slices: { label: string; value: number; color: string }[]; center: string; caption: string; legend?: boolean }) {
   const total = slices.reduce((s, x) => s + Math.max(0, x.value), 0)
   return (
     <div className="flex items-center gap-4">
@@ -56,15 +56,17 @@ export function Donut({ slices, center, caption }: { slices: { label: string; va
           <span className="text-[10px] text-label-2">{caption}</span>
         </div>
       </div>
-      <ul className="min-w-0 flex-1 space-y-2.5">
-        {slices.map((x, i) => (
-          <li key={`${i}-${x.label}`} className="flex items-center gap-2 text-[13px]">
-            <span className="size-2.5 shrink-0 rounded-full" style={{ background: x.color }} />
-            <span className="flex-1 truncate text-label-2">{x.label}</span>
-            <span className="tabular font-bold">{total ? Math.round((Math.max(0, x.value) / total) * 100) : 0}%</span>
-          </li>
-        ))}
-      </ul>
+      {legend && (
+        <ul className="min-w-0 flex-1 space-y-2.5">
+          {slices.map((x, i) => (
+            <li key={`${i}-${x.label}`} className="flex items-center gap-2 text-[13px]">
+              <span className="size-2.5 shrink-0 rounded-full" style={{ background: x.color }} />
+              <span className="flex-1 truncate text-label-2">{x.label}</span>
+              <span className="tabular font-bold">{total ? Math.round((Math.max(0, x.value) / total) * 100) : 0}%</span>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   )
 }

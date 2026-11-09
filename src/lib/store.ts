@@ -64,6 +64,12 @@ export interface Settings {
   photo: string
   /** Os empréstimos da versão anterior já viraram Dívidas (não converte de novo). */
   legacy: boolean
+  /**
+   * Cartão "Primeiros passos" do Início. '' = ainda não decidido (decide na primeira vez que o Início abre:
+   * conta sem contas, lançamentos e metas vira 'new'); 'new' = conta nova, mostra até fechar ou concluir;
+   * 'off' = não mostra. Vale para todos os aparelhos da conta.
+   */
+  firstSteps: '' | 'new' | 'off'
 }
 
 /** Tudo o que a conta guarda além dos ajustes. A sincronização percorre estas listas. */
@@ -173,6 +179,7 @@ export const defaultSettings: Settings = {
   alertHour: 8,
   photo: '',
   legacy: false,
+  firstSteps: '',
 }
 
 /** Ajustes salvos (aparelho, nuvem ou backup) completados com os padrões; opções que não existem mais ficam de fora. */

@@ -9,7 +9,6 @@ import {
   ArrowUpRight,
   Bell,
   CalendarDays,
-  Check,
   ChevronRight,
   Clock,
   CreditCard,
@@ -21,12 +20,10 @@ import {
   PiggyBank,
   Plus,
   RefreshCw,
-  Rocket,
   Scale,
   Search,
   Target,
   Wallet,
-  X,
   type LucideIcon,
 } from 'lucide-react'
 import clsx from 'clsx'
@@ -39,6 +36,7 @@ import { haptic } from '../lib/haptics'
 import { AccountIcon, CardThumb } from '../components/banks'
 import { CashFlowChart, Donut, FlowLegend } from '../components/charts'
 import { Mascot } from '../components/mascots'
+import { FirstSteps } from '../components/FirstSteps'
 import { CategoryIcon, TxRow, agendaText, openAgenda, type AgendaItem } from '../components/finance'
 import { initials } from '../components/ui'
 import { Trend } from './Home'
@@ -129,87 +127,6 @@ function Sparkline({ values, className }: { values: number[]; className?: string
         transition={{ duration: 1, ease: 'easeOut', delay: 0.2 }}
       />
     </svg>
-  )
-}
-
-// ─── Primeiros passos ────────────────────────────────────────
-
-const DISMISS = 'jurospro-primeiros-passos'
-
-/** Conta nova: o que falta para começar a organizar. Some quando tudo estiver feito (ou ao fechar). */
-function OnboardingCard() {
-  const accounts = useData((s) => s.accounts.length)
-  const transactions = useData((s) => s.transactions.length)
-  const budgets = useData((s) => s.categories.some((c) => (c.budget ?? 0) > 0) || s.settings.budgetTotal > 0)
-  const goals = useData((s) => s.goals.length)
-  const enabled = useNotices((s) => s.enabled)
-  const { openAccount, openTx, setTab, openGoal, openSettings } = useUI()
-  const [closed, setClosed] = useState(() => {
-    try {
-      return localStorage.getItem(DISMISS) === '1'
-    } catch {
-      return false
-    }
-  })
-
-  const steps = [
-    { label: 'Cadastre suas contas', cta: 'Cadastrar', done: accounts > 0, action: () => openAccount(true) },
-    { label: 'Registre um lançamento', cta: 'Lançar', done: transactions > 0, action: () => openTx(true, { type: 'despesa' }) },
-    { label: 'Defina limites de gastos', cta: 'Definir', done: budgets, action: () => setTab('budget') },
-    { label: 'Crie uma meta', cta: 'Criar', done: goals > 0, action: () => openGoal(true) },
-    { label: 'Ative as notificações', cta: 'Ativar', done: enabled, action: () => openSettings(true, 'notificacoes') },
-  ]
-  const done = steps.filter((s) => s.done).length
-  // quem abriu o app com tudo pronto nem vê o cartão
-  const [started] = useState(() => done < steps.length)
-  if (closed || !started) return null
-  const all = done === steps.length
-  const close = () => {
-    try {
-      localStorage.setItem(DISMISS, '1')
-    } catch {}
-    setClosed(true)
-  }
-
-  return (
-    <motion.section initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="rounded-[22px] bg-surface p-5 shadow-card">
-      <div className="mb-4 flex items-center gap-2.5">
-        <span className="grid size-9 shrink-0 place-items-center rounded-full bg-tint/10 text-tint">
-          <Rocket className="size-[18px]" />
-        </span>
-        <div className="min-w-0 flex-1">
-          <h2 className="text-[16px] font-semibold tracking-[-0.01em]">{all ? 'Tudo pronto' : 'Primeiros passos'}</h2>
-          <p className="text-[12px] text-label-2">{all ? 'Suas finanças estão organizadas. Agora é só acompanhar.' : 'Deixe suas finanças organizadas em poucos minutos.'}</p>
-        </div>
-        <span className="tabular text-[12.5px] font-semibold text-label-2">
-          {done} de {steps.length}
-        </span>
-        <div className="h-2 w-36 overflow-hidden rounded-full bg-fill">
-          <motion.div className="h-full rounded-full bg-tint" initial={{ width: 0 }} animate={{ width: `${(done / steps.length) * 100}%` }} transition={{ duration: 0.8, ease: 'easeOut' }} />
-        </div>
-        <button onClick={close} title="Fechar" aria-label="Fechar primeiros passos" className="grid size-8 place-items-center rounded-full text-label-2 hover:bg-fill">
-          <X className="size-4" />
-        </button>
-      </div>
-      <div className="grid grid-cols-3 gap-2.5 xl:grid-cols-5">
-        {steps.map((s, i) => (
-          <button
-            key={s.label}
-            onClick={s.action}
-            disabled={s.done}
-            className={clsx('flex items-start gap-2.5 rounded-[16px] p-3 text-left transition-colors', s.done ? 'bg-tint/[0.07]' : 'bg-fill/50 hover:bg-fill')}
-          >
-            <span className={clsx('grid size-6 shrink-0 place-items-center rounded-full text-[12px] font-bold', s.done ? 'bg-tint text-white' : 'bg-surface text-label-2 shadow-card')}>
-              {s.done ? <Check className="size-3.5" strokeWidth={3} /> : i + 1}
-            </span>
-            <span className="min-w-0">
-              <span className={clsx('block text-[13px] font-semibold leading-tight', s.done && 'text-label-2 line-through decoration-label-3')}>{s.label}</span>
-              <span className="mt-1 block text-[12px] font-semibold text-tint">{s.done ? 'Feito' : `${s.cta} →`}</span>
-            </span>
-          </button>
-        ))}
-      </div>
-    </motion.section>
   )
 }
 
@@ -581,8 +498,10 @@ function CategoriesCard({ d }: { d: Data }) {
         <p className="rounded-[16px] bg-fill/50 p-3.5 text-[13px] text-label-2">Quando você lançar despesas, o gráfico mostra quais categorias mais pesam no mês.</p>
       ) : (
         <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-5">
-          <div className="w-[220px]">
+          {/* a lista ao lado já tem nome, valor e porcentagem: a rosca vai sem legenda */}
+          <div className="w-36">
             <Donut
+              legend={false}
               slices={[
                 ...spending.sorted.slice(0, 5).map((x) => ({ label: x.cat.name, value: x.value, color: x.cat.color })),
                 ...(spending.sorted.length > 5 || spending.uncategorized ? [{ label: 'Outras', value: spending.sorted.slice(5).reduce((s, x) => s + x.value, 0) + spending.uncategorized, color: 'var(--label-3)' }] : []),
@@ -815,7 +734,7 @@ export default function HomeDesktop() {
                 <RefreshCw className="size-[15px]" />
               </motion.button>
             </div>
-            <OnboardingCard />
+            <FirstSteps />
             <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] xl:items-start">
               <div className="min-w-0 space-y-5">
                 <BalanceCard d={d} />
