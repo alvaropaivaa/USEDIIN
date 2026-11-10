@@ -52,3 +52,13 @@ export const relDay = (iso: string, ref = today()) => {
   if (d === -1) return 'ontem'
   return `${iso.slice(8, 10)}/${iso.slice(5, 7)}`
 }
+
+/** Próximo dia `day` do mês a partir de `ref` (hoje conta; no mês mais curto, o último dia dele). */
+export function nextDay(day: number, ref = today()) {
+  const on = (key: string) => {
+    const last = new Date(Number(key.slice(0, 4)), Number(key.slice(5, 7)), 0).getDate()
+    return `${key}-${String(Math.min(day, last)).padStart(2, '0')}`
+  }
+  const now = on(monthKey(ref))
+  return now >= ref ? now : on(shiftMonth(monthKey(ref), 1))
+}

@@ -38,7 +38,8 @@ export function Screen({ title, subtitle, leading, trailing, children }: { title
           <div className="absolute right-5 flex items-center gap-2 lg:static">{trailing}</div>
         </div>
       </header>
-      <div className={clsx(pageWidth, 'pb-40 pt-2 lg:pb-12 lg:pt-6')}>{children}</div>
+      {/* embaixo, folga para a barra (celular) e para o botão flutuante do assistente */}
+      <div className={clsx(pageWidth, 'pb-40 pt-2 lg:pb-24 lg:pt-6')}>{children}</div>
     </div>
   )
 }

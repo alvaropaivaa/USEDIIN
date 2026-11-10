@@ -18,6 +18,7 @@ import SettingsSheet from './sheets/SettingsSheet'
 import InboxSheet from './sheets/InboxSheet'
 import CalculatorSheet from './sheets/CalculatorSheet'
 import { LockScreen } from './components/Lock'
+import { Setup } from './components/Setup'
 import Sidebar, { useShortcuts } from './components/Sidebar'
 import { money, setPrivacy } from './lib/format'
 import { onAppEvent } from './lib/events'
@@ -117,6 +118,62 @@ function useDayRollover() {
   }, [refreshDay])
 }
 
+/**
+ * Atalho flutuante para o assistente, em todas as telas (menos no próprio chat). No celular fica acima da barra
+ * e encolhe para só o ícone enquanto a pessoa rola para baixo; no computador, no canto de baixo.
+ */
+function AssistantButton() {
+  const tab = useUI((s) => s.tab)
+  const setTab = useUI((s) => s.setTab)
+  // encolhido só na aba em que rolou: trocar de aba volta o rótulo
+  const [smallOn, setSmallOn] = useState<Tab | null>(null)
+  const small = smallOn === tab
+  useEffect(() => {
+    // qualquer tela rola no próprio container: escuta a rolagem de todos (fase de captura)
+    const last = new WeakMap<EventTarget, number>()
+    const onScroll = (e: Event) => {
+      const el = e.target as HTMLElement
+      if (!(el instanceof HTMLElement)) return
+      const y = el.scrollTop
+      const before = last.get(el) ?? 0
+      last.set(el, y)
+      if (Math.abs(y - before) < 6) return
+      setSmallOn(y > 40 && y > before ? useUI.getState().tab : null)
+    }
+    document.addEventListener('scroll', onScroll, true)
+    return () => document.removeEventListener('scroll', onScroll, true)
+  }, [])
+  return (
+    <AnimatePresence>
+      {tab !== 'assistant' && (
+        <motion.button
+          key="assistente"
+          type="button"
+          aria-label="Abrir o assistente"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.8 }}
+          whileTap={{ scale: 0.94 }}
+          transition={spring}
+          onClick={() => (haptic('medium'), setTab('assistant'))}
+          className="fixed bottom-[calc(max(var(--sab),10px)+74px)] right-4 z-30 flex h-12 items-center gap-2 rounded-full bg-surface pl-2.5 pr-2.5 text-[14px] font-semibold text-label shadow-[0_10px_28px_-10px_rgba(15,21,18,0.4),0_0_0_0.5px_rgba(15,21,18,0.08)] lg:bottom-6 lg:right-6"
+        >
+          <span className="grid size-8 shrink-0 place-items-center rounded-full bg-tint/10 text-tint">
+            <MessageCircle className="size-[18px]" />
+          </span>
+          <AnimatePresence initial={false}>
+            {!small && (
+              <motion.span key="rotulo" initial={{ width: 0, opacity: 0 }} animate={{ width: 'auto', opacity: 1 }} exit={{ width: 0, opacity: 0 }} transition={{ duration: 0.2 }} className="overflow-hidden whitespace-nowrap pr-1.5">
+                Assistente
+              </motion.span>
+            )}
+          </AnimatePresence>
+        </motion.button>
+      )}
+    </AnimatePresence>
+  )
+}
+
 /** Login primeiro; ao entrar, o login some e o app aparece suavemente. */
 export default function App() {
   useTheme()
@@ -161,6 +218,7 @@ function MainApp() {
   useWhatsAppToasts()
   useShortcuts()
   const privacy = useData((s) => s.settings.privacy)
+  const start = useData((s) => s.settings.start)
   setPrivacy(privacy)
   const { tab, setTab, openTx, openGoal, openNewDebt, openCalculator, openSettings, more, openMore } = useUI()
   const [create, setCreate] = useState(false)
@@ -175,7 +233,8 @@ function MainApp() {
 
   return (
     <>
-    <div vaul-drawer-wrapper="" className="relative flex h-full overflow-hidden bg-bg">
+    {/* com o passo a passo aberto, o app embaixo não recebe toque nem foco */}
+    <div vaul-drawer-wrapper="" inert={start === 'setup'} className="relative flex h-full overflow-hidden bg-bg">
       {/* computador: menu lateral; celular: barra inferior */}
       <Sidebar />
       <div className="relative min-w-0 flex-1">
@@ -194,6 +253,8 @@ function MainApp() {
           </motion.main>
         </AnimatePresence>
       </div>
+
+      <AssistantButton />
 
       {/* Barra inferior com botão central de criação */}
       <nav className={clsx('pointer-events-none fixed inset-x-0 bottom-0 z-30 flex justify-center lg:hidden', tab === 'assistant' && 'hidden')}>
@@ -291,6 +352,8 @@ function MainApp() {
       <CalculatorSheet />
     </div>
     {/* fora do wrapper: o vaul escala o wrapper e prenderia estes overlays atrás dos painéis */}
+    {/* começo da conta: o passo a passo cobre o app até terminar ou sair */}
+    <AnimatePresence>{start === 'setup' && <Setup key="setup" />}</AnimatePresence>
     <Toaster />
     <UpdateBanner />
     <LockScreen />

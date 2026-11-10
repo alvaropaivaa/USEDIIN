@@ -6,22 +6,22 @@ import { useData, useUI } from '../lib/store'
 import { useNotices } from '../lib/notify'
 import { haptic } from '../lib/haptics'
 
-// "Primeiros passos": só para conta nova. Na primeira vez que o Início abre, a conta sem contas, lançamentos e
-// metas fica marcada como nova (nos ajustes, que vão para a nuvem: vale em todos os aparelhos); quem já usa o
-// app não vê. Some ao fechar, ou na próxima vez que o Início abrir com os cinco passos feitos.
+// "Primeiros passos": vem depois do passo a passo do começo da conta (settings.start = 'steps'; vale em todos os
+// aparelhos). Mostra o que ainda falta; some ao fechar, ou na próxima vez que o Início abrir com tudo feito.
 
 function useFirstSteps() {
   const accounts = useData((s) => s.accounts.length)
   const transactions = useData((s) => s.transactions.length)
   const goals = useData((s) => s.goals.length)
   const budgets = useData((s) => s.categories.some((c) => (c.budget ?? 0) > 0) || s.settings.budgetTotal > 0)
-  const mode = useData((s) => s.settings.firstSteps)
+  const mode = useData((s) => s.settings.start)
   const setSettings = useData((s) => s.setSettings)
   const enabled = useNotices((s) => s.enabled)
-  const { openAccount, openTx, setTab, openGoal, openSettings } = useUI()
+  const { openTx, setTab, openGoal, openSettings } = useUI()
 
   const steps = [
-    { label: 'Cadastre suas contas', cta: 'Cadastrar', done: accounts > 0, action: () => openAccount(true) },
+    // reabre o passo a passo (bancos, saldos, renda, cartões e contas fixas)
+    { label: 'Cadastre suas contas', cta: 'Cadastrar', done: accounts > 0, action: () => setSettings({ start: 'setup' }) },
     { label: 'Registre um lançamento', cta: 'Lançar', done: transactions > 0, action: () => openTx(true, { type: 'despesa' }) },
     { label: 'Defina limites de gastos', cta: 'Definir', done: budgets, action: () => setTab('budget') },
     { label: 'Crie uma meta', cta: 'Criar', done: goals > 0, action: () => openGoal(true) },
@@ -31,15 +31,13 @@ function useFirstSteps() {
   const all = done === steps.length
   // com tudo feito ao abrir, encerra: o "Tudo pronto" só aparece na hora em que o último passo é feito
   const [allAtOpen] = useState(all)
-  const fresh = accounts + transactions + goals === 0
 
   useEffect(() => {
-    if (mode === '') setSettings({ firstSteps: fresh ? 'new' : 'off' })
-    else if (mode === 'new' && allAtOpen) setSettings({ firstSteps: 'off' })
-  }, [mode, fresh, allAtOpen, setSettings])
+    if (mode === 'steps' && allAtOpen) setSettings({ start: 'off' })
+  }, [mode, allAtOpen, setSettings])
 
-  const close = () => (haptic(), setSettings({ firstSteps: 'off' }))
-  return { show: mode === 'new' && !allAtOpen, steps, done, all, close }
+  const close = () => (haptic(), setSettings({ start: 'off' }))
+  return { show: mode === 'steps' && !allAtOpen, steps, done, all, close }
 }
 
 /** Cartão do Início. Computador: os cinco passos lado a lado; celular (`compact`): um embaixo do outro. */

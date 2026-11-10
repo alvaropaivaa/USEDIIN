@@ -55,7 +55,7 @@ function HomeMobile() {
   // orçamento: só as categorias em atenção ou estouradas (as tranquilas ficam na aba Orçamento)
   const tight = spending.budgets.filter((b) => b.tone !== 'green').slice(0, 3)
   const hasBudget = month.limit > 0 || spending.budgets.length > 0
-  const newAccount = settings.firstSteps === 'new'
+  const newAccount = settings.start !== 'off'
 
   return (
     <div className="no-scrollbar h-full overflow-y-auto overflow-x-hidden">
